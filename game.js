@@ -11,58 +11,96 @@ function getComputerChoice(){
     }
 }
 
-// Obtains user's choice
-function getUserChoice(){
-    let input = prompt("Enter \"Rock\", \"Paper\", or \"Scissors\".");
-
-    input = input.toLowerCase();
-
-    // Only escape when we have valid input
-    while(input !== "rock" && input !== "paper" && input !== "scissors"){
-        input = prompt("Please enter a valid input: \"Rock\", \"Paper\", or \"Scissors\".");
-    }
-
-    return input;
-}
-
 // Takes in input for user and computer choice and computes tic-tac-tie logic
 function playRound(computerChoice, userChoice){
     if(computerChoice === "rock" && userChoice === "scissors"){
-        console.log("You lose! Rock beats Scissors");
+        displayRoundResults("You lose! Rock beats Scissors");
         computerScore++;
     }else if(computerChoice === "paper" && userChoice === "rock"){
-        console.log("You lose! Paper beats Rock");
+        displayRoundResults("You lose! Paper beats Rock");
         computerScore++;
     }else if(computerChoice === "scissors" && userChoice === "paper"){
-        console.log("You lose! Scissors beats Paper");
+        displayRoundResults("You lose! Scissors beats Paper");
         computerScore++;
     }else if(userChoice === "rock" && computerChoice === "scissors"){
-        console.log("You win! Rock beats Scissors");
-        userChoice++;
+        displayRoundResults("You win! Rock beats Scissors");
+        userScore++;
     }else if(userChoice === "paper" && computerChoice === "rock"){
-        console.log("You win! Paper beats Rock");
-        userChoice++;
+        displayRoundResults("You win! Paper beats Rock");
+        userScore++;
     }else if(userChoice === "scissors" && computerChoice === "paper"){
-        console.log("You win! Scissors beats Paper");
-        userChoice++;
+        displayRoundResults("You win! Scissors beats Paper");
+        userScore++;
     }else{
-        console.log("Tie!")
+        displayRoundResults("Tie!");
         computerScore++;
         userScore++;
     }
 }
 
+function updateScore(){
+    user_score_p.textContent = "Your score is: " + userScore;
+    computer_score_p.textContent = "Computer score is: " + computerScore;
+}
+
+function displayRoundResults(result){
+    round_results_p.textContent = result;
+}
+
+function displayGameResults(result){
+    console.log(document.getElementById("game_results_div") !== null);
+    if(document.getElementById("game_results_div") !== null){
+        return;
+    }
+
+    let div = document.createElement("div");
+    div.setAttribute("id", "game_results_div");
+
+    let p = document.createElement("p");
+    div.setAttribute("id", "game_results_p");
+    div.appendChild(p);
+
+    let text = document.createTextNode(result);
+    p.appendChild(text);
+    p.style.color = "red";
+
+    let insertionDiv = document.getElementById("round_results_div");
+    insertionDiv.appendChild(div);
+}
+
 var userScore = 0;
 var computerScore = 0;
 
-// Plays game for 5 rounds
-for(let i = 0; i < 5; i++){
-    playRound(getComputerChoice(), getUserChoice());
-}
+var buttons = Array.from(document.getElementsByClassName("rps-button"));
+var user_score_p = document.getElementById("user_score_p");
+var computer_score_p = document.getElementById("computer_score_p");
+var round_results_p = document.getElementById("round_results_p");
 
-// Determines the winner out of the 5 rounds
-if(userScore > computerScore){
-    console.log("USER WINS");
-}else{
-    console.log("COMPUTER WINS");
-}
+var gameIsActive = true;
+
+// add click event for all buttons, executing game logic inside a lambda
+buttons.forEach(button => {
+    button.addEventListener("click", () => {
+        if(!gameIsActive){
+            return;
+        }
+
+        // uses the text of the button to determine user choice
+        playRound(getComputerChoice(), button.textContent.toLowerCase());
+        updateScore();
+
+        if(userScore === 5 && computerScore === 5){
+            displayGameResults("TIE");
+            gameIsActive = false;
+            return;
+        }else if(userScore >= 5){
+            displayGameResults("USER WINS");
+            gameIsActive = false;
+            return;
+        }else if(computerScore >= 5){
+            displayGameResults("COMPUTER WINS");
+            gameIsActive = false;
+            return;
+        }
+    })
+});
